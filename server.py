@@ -1,84 +1,22 @@
-# USAGE
-# Start the server:
-# 	python run_keras_server.py
-# Submit a request via cURL:
-# 	curl -X POST -F image=@dog.jpg 'http://localhost:5000/predict'
-# Submita a request via Python:
-#	python simple_request.py
 
-# import the necessary packages
-from keras.applications import ResNet50
-from keras.preprocessing import image
-from keras.applications import imagenet_utils
+# Request ejemplo via CURL:
+# 	curl -X POST -F image=@dog.jpg 'http://localhost:5000/predict'
+
+
 import keras.models
 from PIL import Image
 import numpy as np
 import flask
 import io
 import tensorflow as tf
-# initialize our Flask application and the Keras model
+
+
+# inicializamos la app de Flask y la variable que ocontedra a nuestro modelo cargado
 app = flask.Flask(__name__)
 model = None
 
-#class Modelo:
-#   __instancia = None
-#   @staticmethod 
-#   def getInstancia():
-#      if Modelo.__instancia == None:
-#         Modelo('dog_classifier.h5')
-#      return Modelo.__instancia
-#   def __init__(self, path):
-#      if Modelo.__instancia != None:
-#         raise Exception("Asi no!")
-#      else:
-#         Modelo.__instancia = load_model(path)
-
-def load_model():
-	# load the pre-trained Keras model (here we are using a model
-	# pre-trained on ImageNet and provided by Keras, but you can
-	# substitute in your own networks just as easily)
-	global model
-	model = keras.models.load_model('dog_classifier.h5')
-	global graph
-	graph = tf.get_default_graph()
-
-
-def prepare_image(image, target):
-	# if the image mode is not RGB, convert it
-	if image.mode != "RGB":
-		image = image.convert("RGB")
-	# resize the input image and preprocess it
-	image = image.resize(target)
-	image = keras.preprocessing.image.img_to_array(image)
-	image = np.expand_dims(image, axis=0)
-	image = image/255.0
-
-	# return the processed image
-	return image
-
-@app.route("/predict", methods=["POST"])
-def predict():
-	# initialize the data dictionary that will be returned from the
-	# view
-	data = {"success": False}
-
-	# ensure an image was properly uploaded to our endpoint
-	if flask.request.method == "POST":
-		if flask.request.files.get("image"):
-			# read the image in PIL format
-			image = flask.request.files["image"].read()
-			image = Image.open(io.BytesIO(image))
-
-			# preprocess the image and prepare it for classification
-			image = prepare_image(image, target=(224, 224))
-
-			# classify the input image and then initialize the list
-			# of predictions to return to the client
-			with graph.as_default():
-				preds = model.predict(image)
-
-			#results = imagenet_utils.decode_predictions(preds)
-			class_dict = {0: 'Border_collie',
+#aca cargamos el diccionario con las correspondencias de cada etiqueta 
+class_dict = {0: 'Border_collie',
 				1:'Doberman',
 				2:'German_shepherd',
 				3:'Great_Dane',
@@ -88,25 +26,66 @@ def predict():
 				7:'beagle',
 				8:'collie',
 				9:'schipperke'}
+#esta funcion nos permite pasar de un arreglo de probabilidades a tener un diccionario con la etiquete de c/u y su probabilidad
+#el segundo valor que devuelve es la clase en la que tiene mas confianza
+def decode_predictions(prediction):
+	result = dict(zip(class_dict.values(), prediction.tolist()[0]))
+	confident_class = class_dict[np.where(prediction>0.5)[1][0]]
+	return result, confident_class
+
+def load_model():
+	# cargamos el modelo de keras que tenemos en el repo poniendo su ruta como argumento en leado model
+	#esto solo se ejecuta una vez ya que no necesitamos cargar el modelo con cada peticion
+	global model
+	model = keras.models.load_model('dog_classifier.h5')
+	#guardamos el grafo por defecto de tensorflow por errores del backend, no se tendria que hacer en situaciones normales
+	global graph
+	graph = tf.get_default_graph()
+
+
+def prepare_image(image, target_size):
+	# si el modo de la imagen no es RGB la convertimos a ese tipo
+	if image.mode != "RGB":
+		image = image.convert("RGB")
+	# ahora le hacemos el preprocessing necesario para que entre a la red.
+	image = image.resize(target_size)
+	image = keras.preprocessing.image.img_to_array(image)
+	image = np.expand_dims(image, axis=0)
+	image = image/255.0
+
+	return image
+
+@app.route("/predict", methods=["POST"])
+def predict():
+	# inicializamos el diccionario que va a devolver el metodo
+	data = {"success": False}
+
+	if flask.request.method == "POST":
+		#nos aseguramos de que haya llegado la imagen por POST
+		if flask.request.files.get("image"):
+			# leemos la imagen y la transformamos a formato PIL
+			image = flask.request.files["image"].read()
+			image = Image.open(io.BytesIO(image))
+
+			# preprocesamos la imagen
+			image = prepare_image(image, target_size=(224, 224))
+
+			# clasificamos la imagen
+			with graph.as_default():
+				preds = model.predict(image)
 			
-			data["predictions"] = class_dict[np.where(preds>0.5)[1][0]]
-
-			# loop over the results and add them to the list of
-			# returned predictions
-			#for (imagenetID, label, prob) in results[0]:
-			#	r = {"label": label, "probability": float(prob)}
-			#	data["predictions"].append(r)
-
-			# indicate that the request was a success
+			# procesamos los resultados de predciccion para que sean legibles
+			full_result, class_predicted = decode_predictions(preds)
+			# armamos el diccionario que vamos a devolver al usuario
+			data["predictions"] = class_predicted
+			data['probabilities'] = full_result
 			data["success"] = True
 
-	# return the data dictionary as a JSON response
+	# returnamos los resultados en formato json
 	return flask.jsonify(data)
 
-# if this is the main thread of execution first load the model and
-# then start the server
+# cuando corramos python esta_script.py detecta que el hilo de ejecucion primario es este (main), carga el modelo y luego el server
 if __name__ == "__main__":
-	print(("* Loading Keras model and Flask starting server..."
-		"please wait until server has fully started"))
+	print("Cargando el modelo e iniciando el servidor Flask!")
 	load_model()
 	app.run(host='0.0.0.0')
