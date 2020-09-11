@@ -63,6 +63,14 @@ def api_index(path):
 def index():
 	return flask.send_from_directory('./public', "index.html")
 
+"""
+@api {post} /predict Predecir la raza del perro en la imagen
+@apiName GetPrediction
+@apiGroup Endpoints
+
+@apiSuccess {String} raza Raza del Perro.
+"""
+
 @app.route("/predict", methods=["POST"])
 def predict():
 	# inicializamos el diccionario que va a devolver el metodo
