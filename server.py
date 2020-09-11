@@ -55,6 +55,14 @@ def prepare_image(image, target_size):
 
 	return image
 
+@app.route('/<path:path>')
+def api_index(path):
+	return flask.send_from_directory('./public', path)
+
+@app.route('/', methods=['GET'])
+def index():
+	return flask.send_from_directory('./public', "index.html")
+
 @app.route("/predict", methods=["POST"])
 def predict():
 	# inicializamos el diccionario que va a devolver el metodo
