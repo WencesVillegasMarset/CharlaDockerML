@@ -33,6 +33,13 @@ define({ "api": [
     "title": "Predecir la raza del perro en la imagen",
     "name": "GetPrediction",
     "group": "Endpoints",
+    "examples": [
+      {
+        "title": "Body",
+        "content": "{\n\"image\": ImageFile.jpg\n}",
+        "type": "body"
+      }
+    ],
     "success": {
       "fields": {
         "Success 200": [

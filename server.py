@@ -67,7 +67,10 @@ def index():
 @api {post} /predict Predecir la raza del perro en la imagen
 @apiName GetPrediction
 @apiGroup Endpoints
-
+@apiExample {body} Body
+	{
+		"image": ImageFile.jpg
+	}
 @apiSuccess {String} raza Raza del Perro.
 """
 
@@ -103,5 +106,5 @@ def predict():
 # cuando corramos python esta_script.py detecta que el hilo de ejecucion primario es este (main), carga el modelo y luego el server
 if __name__ == "__main__":
 	print("Cargando el modelo e iniciando el servidor Flask!")
-	load_model()
+	# load_model()
 	app.run(host='0.0.0.0')
