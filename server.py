@@ -57,11 +57,11 @@ def prepare_image(image, target_size):
 
 @app.route('/<path:path>')
 def api_index(path):
-	return flask.send_from_directory('../public', path)
+	return flask.send_from_directory('./public', path)
 
 @app.route('/', methods=['GET'])
 def index():
-	return flask.send_from_directory('../public', "index.html")
+	return flask.send_from_directory('./public', "index.html")
 
 """
 @api {post} /predict Predecir la raza del perro en la imagen
