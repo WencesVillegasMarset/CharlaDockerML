@@ -1,5 +1,5 @@
 <a name="top"></a>
-# Lexia Scheduling Service v1.0.0
+# Lexia Scheduling Service - Wenceslao Villegas 42783 v1.0.0
 
 Las razas soportadas son Border Collie, Doberman, Ovejero Aleman, Gran Danes, Pekines, Rhodesia, Husky SIberiano, Beagle, Collie y Schipekke!
 
