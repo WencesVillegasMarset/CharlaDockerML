@@ -1,5 +1,7 @@
-# Charla Docker + ML
+# Charla Docker + ML 
 Charla Docker + ML @ Meetup Ciencia de Datos Mendoza
+
+https://www.meetup.com/ciencia-de-datos-en-mendoza/
 
 Colab Notebook https://colab.research.google.com/drive/1KrcFMyWb8ttF3PqEv07BYXPNV9YShR6r#scrollTo=KP_fwPayl_iD
 
