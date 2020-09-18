@@ -12,6 +12,6 @@ Para correr la imagen docker desde el container registry:
 ```console
 bash:~$ docker run --detach --publish 5000:5000 --name wences-dog-classifier wencesvillegas/dogbreedml:1.7 
 ```
-(Luego descargarse puede tardar unos segundos inicializando el modelo)
+Luego de descargarse puede tardar unos segundos inicializando el modelo, acceder a localhost:5000.
 
 
