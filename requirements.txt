@@ -17,7 +17,7 @@ mock==3.0.5
 numpy==1.16.4
 olefile==0.46
 Pillow==6.2.0
-protobuf==3.7.1
+protobuf==3.18.3
 PyYAML==5.1
 scipy==1.2.1
 six==1.12.0
